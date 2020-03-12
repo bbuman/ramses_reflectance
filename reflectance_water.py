@@ -4,7 +4,6 @@
 # THIS SCRIPT IS BASED ON WORK BY : Luca Brüderlin
 
 # IMPORTS
-import os
 import math
 import numpy as np
 import pandas as pd
@@ -20,7 +19,6 @@ sen_sam8624 = {}
 # Function to parse the data
 def parseData(filePath, sensorDict):
     with open(filePath) as f:
-        devId = ""
         wvl = []
         sig = []
         isSpectralData = False
@@ -97,3 +95,4 @@ signalInterpolation(sen_sam8624, sen_sam8622)
 signalInterpolation(sen_sam8624, sen_sam8623)
 # REFLECTANCE
 rhow = calcReflectance(sen_sam8624, sen_sam8622, sen_sam8623)
+plt.plot(sen_sam8624.get("Wavelength"), rhow)
