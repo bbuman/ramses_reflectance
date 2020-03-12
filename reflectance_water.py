@@ -4,7 +4,6 @@
 # THIS SCRIPT IS BASED ON WORK BY : Luca Brüderlin
 
 # IMPORTS
-import math
 import numpy as np
 import pandas as pd
 from scipy import interpolate as intplt
@@ -68,18 +67,18 @@ def signalInterpolation(referenceSensor, targetSensor):
     targetSensor['Signal_interp1d'] = finterps(referenceSensor['Wavelength'])
 
 # Reflectance
-def calcReflectance(referenceSensor, sensorIrradiance, sensorWaterRadiance):
+def calcReflectance(Edown, Lup, Lsky):
     rhosky = 0.0256 + 0.00039 + 0.000034
     # Extraction of the intensity values at 750nm to determine the Rho sky needed (Based on Neukermans 2012, p. 22)
     wvl750 = 750.94233473125
-    i750 = np.where(referenceSensor.get("Wavelength") == wvl750)
-    inten750_22 = sensorIrradiance.get("Signal_interp1d")[i750]
-    inten750_23 = sensorWaterRadiance.get("Signal_interp1d")[i750]
+    i750 = np.where(Lup.get("Wavelength_interp1d") == wvl750)
+    inten750_22 = Edown.get("Signal_interp1d")[i750]
+    inten750_23 = Lsky.get("Signal")[i750]
     # Calculation of the above-water marine reflectance (Based on Neukermans 2012, p. 22)
     if (inten750_23/inten750_22 < 0.05):
-        rhow = math.pi * ( referenceSensor.get("Signal") - (rhosky * sensorWaterRadiance.get("Signal_interp1d"))) / (sensorIrradiance.get("Signal_interp1d"))
+        rhow = ( Lup.get("Signal_interp1d") - (rhosky * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
     elif (inten750_23/inten750_22 >= 0.05):
-        rhow = math.pi * (referenceSensor.get("Signal") - (0.0256 * sensorWaterRadiance.get("Signal_interp1d"))) / (sensorIrradiance.get("Signal_interp1d"))
+        rhow = ( Lup.get("Signal_interp1d") - (0.0256 * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
     return rhow
 
 # TEST
@@ -94,5 +93,5 @@ parseData(fPath, sen_sam8624)
 signalInterpolation(sen_sam8624, sen_sam8622)
 signalInterpolation(sen_sam8624, sen_sam8623)
 # REFLECTANCE
-rhow = calcReflectance(sen_sam8624, sen_sam8622, sen_sam8623)
+rhow = calcReflectance(sen_sam8622, sen_sam8623, sen_sam8624)
 plt.plot(sen_sam8624.get("Wavelength"), rhow)
