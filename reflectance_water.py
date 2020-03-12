@@ -4,6 +4,7 @@
 # THIS SCRIPT IS BASED ON WORK BY : Luca Brüderlin
 
 # IMPORTS
+import math
 import numpy as np
 import pandas as pd
 from scipy import interpolate as intplt
@@ -76,9 +77,9 @@ def calcReflectance(Edown, Lup, Lsky):
     inten750_23 = Lsky.get("Signal")[i750]
     # Calculation of the above-water marine reflectance (Based on Neukermans 2012, p. 22)
     if (inten750_23/inten750_22 < 0.05):
-        rhow = ( Lup.get("Signal_interp1d") - (rhosky * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
+        rhow = math.pi * ( Lup.get("Signal_interp1d") - (rhosky * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
     elif (inten750_23/inten750_22 >= 0.05):
-        rhow = ( Lup.get("Signal_interp1d") - (0.0256 * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
+        rhow = math.pi * ( Lup.get("Signal_interp1d") - (0.0256 * Lsky.get("Signal"))) / (Edown.get("Signal_interp1d"))
     return rhow
 
 # TEST
