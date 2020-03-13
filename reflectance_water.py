@@ -4,16 +4,12 @@
 # THIS SCRIPT IS BASED ON WORK BY : Luca Brüderlin
 
 # IMPORTS
+import os
 import math
 import numpy as np
 import pandas as pd
 from scipy import interpolate as intplt
 from matplotlib import pyplot as plt
-
-# Structures for data holding
-sen_sam8622 = {}
-sen_sam8623 = {}
-sen_sam8624 = {}
 
 
 # Function to parse the data
@@ -83,16 +79,27 @@ def calcReflectance(Edown, Lup, Lsky):
     return rhow
 
 # TEST
+# Top-level containers
+sensors = {}
+reflectance = {}
+
 # FILES
-fPath = "data/SAM_8622_calibrated.dat"
-parseData(fPath, sen_sam8622)
-fPath = "data/SAM_8623_calibrated.dat"
-parseData(fPath, sen_sam8623)
-fPath = "data/SAM_8624_calibrated.dat"
-parseData(fPath, sen_sam8624)
-# INTERPOLATION
-signalInterpolation(sen_sam8624, sen_sam8622)
-signalInterpolation(sen_sam8624, sen_sam8623)
-# REFLECTANCE
-rhow = calcReflectance(sen_sam8622, sen_sam8623, sen_sam8624)
-plt.plot(sen_sam8624.get("Wavelength"), rhow)
+folder_path = "../Data/ramses/input_data/"
+folders = os.listdir(folder_path)
+for f in folders:
+    files = os.listdir(folder_path + f)
+    sensors[f] = {}
+    count = 0
+    for file in files:
+        file_path = folder_path + f + "/" + file
+        count += 1
+        sensors.get(f)[count] = {}
+        parseData(file_path, sensors.get(f).get(count))
+# INTERPOLATION AND REFLECTANCE CALCULATION
+for measurement in sensors.get('8622'):
+    resultData = {}
+    resultData['Wavelength'] = sensors.get('8624').get(measurement).get('Wavelength')
+    signalInterpolation(sensors.get('8624').get(measurement), sensors.get('8622').get(measurement))
+    signalInterpolation(sensors.get('8624').get(measurement), sensors.get('8623').get(measurement))
+    resultData['Signal'] = np.array(calcReflectance(sensors.get('8622').get(measurement), sensors.get('8623').get(measurement), sensors.get('8624').get(measurement)))
+    reflectance[sensors.get('8624').get(measurement).get("DateTime")] = resultData
