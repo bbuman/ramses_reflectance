@@ -9,7 +9,6 @@ import math
 import numpy as np
 import pandas as pd
 from scipy import interpolate as intplt
-from matplotlib import pyplot as plt
 
 
 # Function to parse the data
